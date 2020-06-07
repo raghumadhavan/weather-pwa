@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { fetchWeather } from "./api/FetchWeather";
 import "./App.css";
 
 function App() {
   const [query, setQuery] = useState("");
   const [weather, setWeather] = useState({});
+  const [error, setError] = useState("");
 
   const search = async e => {
     if (e.key === "Enter") {
-      const data = await fetchWeather(query);
+      const response = await fetchWeather(query);
+      const { data } = response;
+      if (!data) {
+        setQuery("");
+        setWeather("");
+        setError(response.message);
+        return;
+      }
       setWeather(data);
+      setError("");
       setQuery("");
     }
   };
@@ -24,6 +33,11 @@ function App() {
         onChange={e => setQuery(e.target.value)}
         onKeyPress={search}
       />
+      {error && (
+        <div className="city">
+          <h2 className="city-name">{error}</h2>
+        </div>
+      )}
       {weather.main && (
         <div className="city">
           <h2 className="city-name">
